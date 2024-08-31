@@ -60,10 +60,22 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     let isbn = req.params.isbn;
     let review = req.body.review;
     if (isbn in books) {
-      console.log(books[isbn]);
-      console.log(books[isbn]["reviews"]);
       books[isbn]["reviews"][req.session.authorization.username] = review;
       return res.status(200).json({message: "Review successfully added or modified"});
+    }
+    return res.status(404).json({message: "ISBN not found"});
+});
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    let isbn = req.params.isbn;
+    if (isbn in books) {
+        let username = req.session.authorization.username;
+        if (username in books[isbn]["reviews"]) {
+            delete books[isbn]["reviews"][username];
+            return res.status(200).json({message: "Review successfully deleted"});
+        }
+        return res.status(200).json({message: "Nothing to delete"});
     }
     return res.status(404).json({message: "ISBN not found"});
 });
